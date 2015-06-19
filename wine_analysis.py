@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import seaborn as sns
 from gensim.corpora import BleiCorpus
 from gensim.models import LdaModel
 from gensim import corpora
@@ -30,6 +31,51 @@ from sklearn.svm import LinearSVC
 from sklearn.cross_validation import ShuffleSplit
 from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
+
+            
+class Corpus(object):
+    def __init__(self, cursor, reviews_dictionary, corpus_path):
+        self.cursor = cursor
+        self.reviews_dictionary = reviews_dictionary
+        self.corpus_path = corpus_path
+
+    def __iter__(self):
+        self.cursor.rewind()
+        for review in self.cursor:
+            yield self.reviews_dictionary.doc2bow(review["words"])
+
+    def serialize(self):
+        BleiCorpus.serialize(self.corpus_path, self, id2word=self.reviews_dictionary)
+
+        return self
+
+
+class Dictionary(object):
+    def __init__(self, cursor, dictionary_path):
+        self.cursor = cursor
+        self.dictionary_path = dictionary_path
+
+    def build(self):
+        self.cursor.rewind()
+        dictionary = corpora.Dictionary(review["words"] for review in self.cursor)
+        dictionary.filter_extremes(keep_n=10000)
+        dictionary.compactify()
+        corpora.Dictionary.save(dictionary, self.dictionary_path)
+
+        return dictionary
+
+
+class Train:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def run(lda_model_path, corpus_path, num_topics, id2word):
+        corpus = corpora.BleiCorpus(corpus_path)
+        lda = LdaModel(corpus, num_topics=num_topics, id2word=id2word)
+        lda.save(lda_model_path)
+
+        return lda
 
 
 def consolidate_wines(dataframe):
@@ -86,6 +132,26 @@ def vectorize_text(x):#, tokenizer):
     
     return tfidf_reviews, vectorizer
     
+    
+def store_pickles(filename, to_store):
+    """Dumps information in to_store into a file named filename.
+    
+    filename = string
+    to_store = list, dictionary, etc.    
+    """  
+    with open(filename, 'w') as f:
+        pickle.dump(to_store, f)
+        
+        
+def eat_pickles(filename):
+    """Loads information from a pickle file.
+    
+    filename = string
+    """
+    
+    with open(filename, 'r') as f:
+        return pickle.load(f)
+    
 client = MongoClient()
 
 #wine_info = client.wines.wine_info
@@ -111,14 +177,32 @@ client = MongoClient()
 
 #cgt14 = client.wines.consolidated_gt14_wines
 #wines = cgt14.find({}, {'_id':0})
+
+##LOCALITY SENSITIVE HASHING
+#reviews = [review['review/text'] for review in wines]
+#wines = [wine for wine in wines]
+
+#tfidf_all, vect_all = vectorize_text(reviews)
+#svd_all = TruncatedSVD(n_components=25)
+#all_reviews = svd_all.fit(tfidf_all).transform(tfidf_all)
+#print 'Shape of resulting principal components: {0}'.format(all_reviews.shape)
+
+#store_pickles('svd_all.pkl', svd_all)
+#store_pickles('vect_all.pkl', vect_all)
+#store_pickles('all_reviews.pkl', all_reviews)
+
+#lshf = LSHForest(n_neighbors = 5)
+#lshf.fit(all_reviews)
 #
-##reviews = [review['review/text'] for review in wines]
+#vec_reviews = vect_all.transform(['blackberry, cassis, tobacco, cedar, coffee, floral'])
+#svd_reviews = svd_all.transform(vec_reviews)
+#neighbors = lshf.kneighbors(svd_reviews)
 #
-##tfidf2, vect2 = vectorize_text(reviews)
-#svd = TruncatedSVD(n_components=2)
-#X_reviews = svd.fit(tfidf2).transform(tfidf2)
-#print 'Shape of resulting principal components: {0}'.format(X_reviews.shape)
-#
+#for i in neighbors[1][0]:
+#    print wines[i]
+#    print
+
+## PCA VISUALIZATION
 #df = pd.DataFrame(list(wines))
 #
 #reds = ['Cabernet Sauvignon', 'Merlot', 'Cabernet Franc', 'Malbec', 'Shiraz, Syrah', 'Syrah', 'Red Blend', 'Grenache',
@@ -138,15 +222,42 @@ client = MongoClient()
 #        color.append('r')
 #    elif variant in white:
 #        color.append('y')
-#    #elif variant in rose:
-#    #    color.append('m')
 #    else:
 #        color.append('w')
-#        
-#plt.scatter(X_reviews[:,0], X_reviews[:,1], c=color)
+ 
+#plt.figure(figsize=(10,10))       
+#plt.scatter(all_reviews[:,0], all_reviews[:,1], c=color)
+#plt.xlabel('Principal Component 1')
+#plt.ylabel('Principal Component 2')
+#plt.title('Principal Component Analysis on Wines')
+ 
+#reds = client.wines.red_corpus_collection
+#red_cursor = reds.find({}, {'_id': 0})
+#red_reviews = [review['review/text'] for review in red_cursor]
+#red_tfidf, red_vect = vectorize_text(red_reviews)
+#svd25 = TruncatedSVD(n_components=25)
+#red_svd = svd25.fit(red_tfidf).transform(red_tfidf)
+#print 'Shape of resulting principal components: {0}'.format(red_svd.shape)
 #
+#store_pickles('svd25.pkl', svd25)
+#store_pickles('red_vec.pkl', red_vect)
+#store_pickles('red_svd_reviews.pkl', red_svd)
+ 
+#whites = client.wines.white_corpus_collection
+#white_cursor = whites.find({}, {'_id': 0})
+#white_reviews = [review['review/text'] for review in white_cursor]
+#white_tfidf, white_vect = vectorize_text(white_reviews)
+#svd25_white = TruncatedSVD(n_components=25)
+#white_svd = svd25_white.fit(white_tfidf).transform(white_tfidf)
+#print 'Shape of resulting principal components: {0}'.format(white_svd.shape)
 #
-#X = [(array, color) for (array, color) in zip(X_reviews, color) if color in ['r','y']]#,'m']]
+#store_pickles('svd25_white.pkl', svd25_white)
+#store_pickles('white_vec.pkl', white_vect)
+#store_pickles('white_svd_reviews.pkl', white_svd)
+
+
+## SVM 
+#X = [(array, color) for (array, color) in zip(all_reviews, color) if color in ['r','y']]#,'m']]
 #
 #y = []
 #
@@ -177,18 +288,22 @@ client = MongoClient()
 #cv_accuracy = cross_validation.cross_val_score(svm, X, y, scoring='accuracy', cv=cv)
 #print 'Cross Validation Accuracy: {0:0.2f} ({1:0.2f})'.format(cv_accuracy.mean(), cv_accuracy.std())
 
-#classified_wines = svm.predict(X_reviews)
-#red_reviews = X_reviews[classified_wines == 0]
+#classified_wines = svm.predict(all_reviews)
 
+#w_reviews = []
 #r_reviews = []
 #
 #for i in range(len(classified_wines)):
 #    if classified_wines[i] == 0:
 #        r_reviews.append(reviews[i])
+#    if classified_wines[i] == 1:
+#        w_reviews.append(reviews[i])
 
 
+## TOPIC MODELING
 #red_corpus_collection = client.wines.red_corpus_collection
-#
+#white_corpus_collection = client.wines.white_corpus_collection
+##
 #def load_stopwords():
 #    more_stopwords = ['\'s', 'wine', 'nose', 'br', 'drink', 'year', 'time', 'day', 'hour', 'wines', 'winery' \
 #    'glass', 'drank']
@@ -206,13 +321,13 @@ client = MongoClient()
 #
 #stopwords = load_stopwords()
 #
-#for review in r_reviews:
+#for review in w_reviews:
 #    
-#    red_cursor = cgt14.find({'review/text': review})
-#    red_review = red_cursor.next()
+#    white_cursor = cgt14.find({'review/text': review})
+#    white_review = white_cursor.next()
 #
 #    words = []
-#    sentences = sent_tokenize(red_review['review/text'].lower())
+#    sentences = sent_tokenize(white_review['review/text'].lower())
 #
 #    for sentence in sentences:
 #        tokens = word_tokenize(sentence)
@@ -230,76 +345,33 @@ client = MongoClient()
 #    for word in words:
 #        nouns.append(lem.lemmatize(word))
 #        
-#    red_corpus_collection.insert({
-#        "wine/name": red_review["wine/name"],
-#        "wine/variant": red_review["wine/variant"],
-#        "review/points": red_review['review/points'],
-#        "review/text": red_review["review/text"],
+#    white_corpus_collection.insert({
+#        "wine/name": white_review["wine/name"],
+#        "wine/variant": white_review["wine/variant"],
+#        "review/points": white_review['review/points'],
+#        "review/text": white_review["review/text"],
 #        "words": nouns
 #    })
-            
-    
-class Corpus(object):
-    def __init__(self, cursor, reviews_dictionary, corpus_path):
-        self.cursor = cursor
-        self.reviews_dictionary = reviews_dictionary
-        self.corpus_path = corpus_path
-
-    def __iter__(self):
-        self.cursor.rewind()
-        for review in self.cursor:
-            yield self.reviews_dictionary.doc2bow(review["words"])
-
-    def serialize(self):
-        BleiCorpus.serialize(self.corpus_path, self, id2word=self.reviews_dictionary)
-
-        return self
-
-
-class Dictionary(object):
-    def __init__(self, cursor, dictionary_path):
-        self.cursor = cursor
-        self.dictionary_path = dictionary_path
-
-    def build(self):
-        self.cursor.rewind()
-        dictionary = corpora.Dictionary(review["words"] for review in self.cursor)
-        dictionary.filter_extremes(keep_n=10000)
-        dictionary.compactify()
-        corpora.Dictionary.save(dictionary, self.dictionary_path)
-
-        return dictionary
-
-
-class Train:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def run(lda_model_path, corpus_path, num_topics, id2word):
-        corpus = corpora.BleiCorpus(corpus_path)
-        lda = LdaModel(corpus, num_topics=num_topics, id2word=id2word)
-        lda.save(lda_model_path)
-
-        return lda
 
 
 #dictionary_path = "models/dictionary.dict"
 #corpus_path = "models/corpus.lda-c"
-#lda_num_topics = 20
-#lda_model_path = "models/lda_model_50_topics.lda"
-#
+#lda_num_topics = 25
+#lda_model_path = "models/lda_model_25_topics.lda"
+
+#white_collection = client.wines.white_corpus_collection
+#w_reviews_cursor = white_collection.find()
 #red_collection = client.wines.red_corpus_collection
 #reviews_cursor = red_collection.find()
-#
-#dictionary = Dictionary(reviews_cursor, dictionary_path).build()
-#Corpus(reviews_cursor, dictionary, corpus_path).serialize()
+
+#dictionary = Dictionary(w_reviews_cursor, dictionary_path).build()
+#Corpus(w_reviews_cursor, dictionary, corpus_path).serialize()
 #Train.run(lda_model_path, corpus_path, lda_num_topics, dictionary)
 #
-##dictionary_path = "models/dictionary.dict"
-##corpus_path = "models/corpus.lda-c"
-##lda_num_topics = 50
-##lda_model_path = "models/lda_model_50_topics.lda"
+#dictionary_path = "models/white_dictionary.dict"
+#corpus_path = "models/white_corpus.lda-c"
+#lda_num_topics = 25
+#lda_model_path = "models/lda_model_25_white_topics.lda"
 #
 #dictionary = corpora.Dictionary.load(dictionary_path)
 #corpus = corpora.BleiCorpus(corpus_path)
