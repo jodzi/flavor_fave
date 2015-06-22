@@ -24,6 +24,7 @@ from nltk import pos_tag
 from operator import itemgetter
 from collections import Counter
 from sklearn import metrics
+from sklearn.externals import joblib
 from sklearn.feature_extraction import text
 from sklearn.neighbors import LSHForest
 from sklearn.decomposition import TruncatedSVD
@@ -133,30 +134,18 @@ def vectorize_text(x):#, tokenizer):
     return tfidf_reviews, vectorizer
     
     
-def store_pickles(filename, to_store):
-    """Dumps information in to_store into a file named filename.
+def n_component_pca(n, tfidf_reviews):
+    svd = TruncatedSVD(n_components=n)
+    reviews = svd.fit(tfidf_reviews).transform(tfidf_reviews)
+    print 'Shape of resulting principal components: {0}'.format(reviews.shape)
+    return svd, reviews
     
-    filename = string
-    to_store = list, dictionary, etc.    
-    """  
-    with open(filename, 'w') as f:
-        pickle.dump(to_store, f)
-        
-        
-def eat_pickles(filename):
-    """Loads information from a pickle file.
-    
-    filename = string
-    """
-    
-    with open(filename, 'r') as f:
-        return pickle.load(f)
     
 client = MongoClient()
 
 #wine_info = client.wines.wine_info
-
-# pull all reviews in without id
+#
+### pull all reviews in without id
 #all_reviews = wine_info.find({}, {'_id': 0})
 #print 'Total number of reviews: {0}'.format(all_reviews.count())
 #
@@ -175,34 +164,17 @@ client = MongoClient()
 #    consolidated_gt14_wines.save(wine)
 
 
+## PULL IN WINES HAVING 15 OR MORE REVIEWS THAT ARE OF YEAR 1990 OR OLDER
 #cgt14 = client.wines.consolidated_gt14_wines
-#wines = cgt14.find({}, {'_id':0})
+#wine_cursor = cgt14.find({'$and': [{'wine/year': {'$gt':'1990'}}, {'wine/year': {'$ne': 'N/A'}}]}, {'_id': 0})
+#wines = [wine for wine in wine_cursor]
 
-##LOCALITY SENSITIVE HASHING
-#reviews = [review['review/text'] for review in wines]
-#wines = [wine for wine in wines]
-
+## PRINCIPAL COMPONENT ANALYSIS, VISUALIZATION, AND LINEAR SVM CLASSIFICATION
+#reviews = [wine['review/text'] for wine in wines]
 #tfidf_all, vect_all = vectorize_text(reviews)
-#svd_all = TruncatedSVD(n_components=25)
-#all_reviews = svd_all.fit(tfidf_all).transform(tfidf_all)
-#print 'Shape of resulting principal components: {0}'.format(all_reviews.shape)
 
-#store_pickles('svd_all.pkl', svd_all)
-#store_pickles('vect_all.pkl', vect_all)
-#store_pickles('all_reviews.pkl', all_reviews)
-
-#lshf = LSHForest(n_neighbors = 5)
-#lshf.fit(all_reviews)
+#svd_2, reviews_2 = n_component_pca(2, tfidf_all)
 #
-#vec_reviews = vect_all.transform(['blackberry, cassis, tobacco, cedar, coffee, floral'])
-#svd_reviews = svd_all.transform(vec_reviews)
-#neighbors = lshf.kneighbors(svd_reviews)
-#
-#for i in neighbors[1][0]:
-#    print wines[i]
-#    print
-
-## PCA VISUALIZATION
 #df = pd.DataFrame(list(wines))
 #
 #reds = ['Cabernet Sauvignon', 'Merlot', 'Cabernet Franc', 'Malbec', 'Shiraz, Syrah', 'Syrah', 'Red Blend', 'Grenache',
@@ -213,8 +185,6 @@ client = MongoClient()
 #white = ['Chardonnay', 'Riesling', 'Sauvignon Blanc', 'White Blend', 'Champagne Blend', 'Cabernet Franc', \
 #        'Gew&#252;rztraminer', 'Viognier', 'Chenin Blanc', 'Pinot Gris']
 #
-#rose = ['Ros&#233; Blend']
-#
 #color = []
 #
 #for variant in df['wine/variant'].values:
@@ -224,12 +194,79 @@ client = MongoClient()
 #        color.append('y')
 #    else:
 #        color.append('w')
- 
+# 
+### LINEAR SVM CLASSIFICATION 
+#X = [(array, color) for (array, color) in zip(reviews_2, color) if color in ['r','y']]
+#y = []
+#
+#for wine in X:
+#    if wine[1] == 'r':
+#        y.append(0)
+#    else:
+#        y.append(1)
+#
+#X = [array for (array, color) in X]
+#
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+#
+#print 'Length of X train set: {0}'.format(len(X_train))
+#print 'Length of y train set: {0}'.format(len(y_train))
+#print 'Length of X test set: {0}'.format(len(X_test))
+#print 'Length of y test set: {0}'.format(len(y_test))
+#
+#svm = LinearSVC(penalty='l2').fit(X_train, y_train)
+#y_pred = svm.predict(X_test)
+#
+#print metrics.classification_report(y_test, y_pred, target_names = ['class 0', 'class 1'])
+#
+#cv = ShuffleSplit(len(X), n_iter=7, test_size=0.30, random_state=0)
+#cv_accuracy = cross_validation.cross_val_score(svm, X, y, scoring='accuracy', cv=cv)
+#print 'Cross Validation Accuracy: {0:0.2f} ({1:0.2f})'.format(cv_accuracy.mean(), cv_accuracy.std())
+#
+#classified_wines = svm.predict(reviews_2)
+
+#color = []
+#for num in classified_wines:
+#    if num == 0:
+#        color.append('r')
+#    else:
+#        color.append('y')
+
 #plt.figure(figsize=(10,10))       
-#plt.scatter(all_reviews[:,0], all_reviews[:,1], c=color)
-#plt.xlabel('Principal Component 1')
-#plt.ylabel('Principal Component 2')
+#plt.scatter(reviews_2[:,0], reviews_2[:,1], c=color)
+#plt.xlabel('PCA 1 - Fruit, Finish, Dark, Tannins, Red, Cherry, Black')
+#plt.ylabel('PCA 2 - Citrus, Lemon, Apple, Yellow, Pear, Crisp, Honey')
 #plt.title('Principal Component Analysis on Wines')
+
+##LOCALITY SENSITIVE HASHING - NEAREST NEIGHBORS SEARCH 
+
+# Actual analysis done with 25 components
+#svd_all, all_reviews = n_component_pca(25, tfidf_all)
+#
+#lshf = LSHForest(n_neighbors = 5)
+#lshf.fit(all_reviews)
+##
+#vec_reviews = vect_all.transform(['pair with shrimp, vanilla, oak, pineapple, butter'])
+#svd_reviews = svd_all.transform(vec_reviews)
+#neighbors = lshf.kneighbors(svd_reviews)
+#
+#for i in neighbors[1][0]:
+#    print wines[i]
+#    print
+
+#joblib.dump(vect_all, 'vect_all.pkl')
+#joblib.dump(svd_all, 'svd_all.pkl')
+#pickle.dump(lshf, open("lshf_model.pkl", "w"))
+
+
+#w_reviews = []
+#r_reviews = []
+#
+#for i in range(len(classified_wines)):
+#    if classified_wines[i] == 0:
+#        r_reviews.append(reviews[i])
+#    if classified_wines[i] == 1:
+#        w_reviews.append(reviews[i])
  
 #reds = client.wines.red_corpus_collection
 #red_cursor = reds.find({}, {'_id': 0})
@@ -256,54 +293,13 @@ client = MongoClient()
 #store_pickles('white_svd_reviews.pkl', white_svd)
 
 
-## SVM 
-#X = [(array, color) for (array, color) in zip(all_reviews, color) if color in ['r','y']]#,'m']]
-#
-#y = []
-#
-#for wine in X:
-#    if wine[1] == 'r':
-#        y.append(0)
-#    else:
-#        #wine[1] == 'y':
-#        y.append(1)
-#    #else:
-#    #    y.append(2)
-#
-#X = [array for (array, color) in X]
-#
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
-#
-#print 'Length of X train set: {0}'.format(len(X_train))
-#print 'Length of y train set: {0}'.format(len(y_train))
-#print 'Length of X test set: {0}'.format(len(X_test))
-#print 'Length of y test set: {0}'.format(len(y_test))
-#
-#svm = LinearSVC(penalty='l2').fit(X_train, y_train)#, dual=False, multi_class='ovr')
-#y_pred = svm.predict(X_test)
-#
-#print metrics.classification_report(y_test, y_pred, target_names = ['class 0', 'class 1'])#, 'class 2'])
-#
-#cv = ShuffleSplit(len(X), n_iter=7, test_size=0.30, random_state=0)
-#cv_accuracy = cross_validation.cross_val_score(svm, X, y, scoring='accuracy', cv=cv)
-#print 'Cross Validation Accuracy: {0:0.2f} ({1:0.2f})'.format(cv_accuracy.mean(), cv_accuracy.std())
 
-#classified_wines = svm.predict(all_reviews)
-
-#w_reviews = []
-#r_reviews = []
-#
-#for i in range(len(classified_wines)):
-#    if classified_wines[i] == 0:
-#        r_reviews.append(reviews[i])
-#    if classified_wines[i] == 1:
-#        w_reviews.append(reviews[i])
 
 
 ## TOPIC MODELING
 #red_corpus_collection = client.wines.red_corpus_collection
 #white_corpus_collection = client.wines.white_corpus_collection
-##
+#
 #def load_stopwords():
 #    more_stopwords = ['\'s', 'wine', 'nose', 'br', 'drink', 'year', 'time', 'day', 'hour', 'wines', 'winery' \
 #    'glass', 'drank']
@@ -320,7 +316,7 @@ client = MongoClient()
 #    
 #
 #stopwords = load_stopwords()
-#
+
 #for review in w_reviews:
 #    
 #    white_cursor = cgt14.find({'review/text': review})
@@ -354,30 +350,45 @@ client = MongoClient()
 #    })
 
 
-#dictionary_path = "models/dictionary.dict"
-#corpus_path = "models/corpus.lda-c"
-#lda_num_topics = 25
-#lda_model_path = "models/lda_model_25_topics.lda"
+#r_dictionary_path = "models/r_60_dictionary.dict"
+#w_dictionary_path = "models/w_60_dictionary.dict"
+#r_corpus_path = "models/r_60_corpus.lda-c"
+#w_corpus_path = "models/w_60_corpus.lda-c"
+#lda_num_topics = 60
+#r_lda_model_path = "models/r_lda_model_60_topics.lda"
+#w_lda_model_path = "models/w_lda_model_60_topics.lda"
 
 #white_collection = client.wines.white_corpus_collection
 #w_reviews_cursor = white_collection.find()
 #red_collection = client.wines.red_corpus_collection
-#reviews_cursor = red_collection.find()
+#r_reviews_cursor = red_collection.find()
 
-#dictionary = Dictionary(w_reviews_cursor, dictionary_path).build()
-#Corpus(w_reviews_cursor, dictionary, corpus_path).serialize()
-#Train.run(lda_model_path, corpus_path, lda_num_topics, dictionary)
-#
-#dictionary_path = "models/white_dictionary.dict"
-#corpus_path = "models/white_corpus.lda-c"
-#lda_num_topics = 25
-#lda_model_path = "models/lda_model_25_white_topics.lda"
-#
-#dictionary = corpora.Dictionary.load(dictionary_path)
-#corpus = corpora.BleiCorpus(corpus_path)
-#lda = LdaModel.load(lda_model_path)
-#
+#r_dictionary = Dictionary(r_reviews_cursor, r_dictionary_path).build()
+#w_dictionary = Dictionary(w_reviews_cursor, w_dictionary_path).build()
+#Corpus(r_reviews_cursor, r_dictionary, r_corpus_path).serialize()
+#Corpus(w_reviews_cursor, w_dictionary, w_corpus_path).serialize()
+#Train.run(r_lda_model_path, r_corpus_path, lda_num_topics, r_dictionary)
+#Train.run(w_lda_model_path, w_corpus_path, lda_num_topics, w_dictionary)
+
+#r_dictionary_path = "models/r_60_dictionary.dict"
+#w_dictionary_path = "models/w_60_dictionary.dict"
+#r_corpus_path = "models/r_60_corpus.lda-c"
+#w_corpus_path = "models/w_60_corpus.lda-c"
+#lda_num_topics = 60
+#r_lda_model_path = "models/r_lda_model_60_topics.lda"
+#w_lda_model_path = "models/w_lda_model_60_topics.lda"
+
+#dictionary = corpora.Dictionary.load(r_dictionary_path)
+#corpus = corpora.BleiCorpus(r_corpus_path)
+#lda = LdaModel.load(r_lda_model_path)
+#dictionary = corpora.Dictionary.load(w_dictionary_path)
+#corpus = corpora.BleiCorpus(w_corpus_path)
+#lda = LdaModel.load(w_lda_model_path)
+
 #i = 0
 #for topic in lda.show_topics(num_topics=lda_num_topics):
 #    print '#' + str(i) + ': ' + topic
 #    i += 1
+
+#wine_prices = pickle.load(open('wine_com_prices.pkl', 'r'))
+
