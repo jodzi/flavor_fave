@@ -4,13 +4,15 @@
   	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   	<link rel="stylesheet" href="static/chosen.min.css"/>
   	<link rel="stylesheet" href="static/style.css"/>
-  	<link rel="stylesheet" href="static/prism.css"/>
+
   </head>
 
   <style>
 
-  input[type="radio"]{
-  	margin: 0 10px 0 10px;
+  h2{
+  	margin-left: 450px;
+  	font-size: 300%;
+  	margin-top: 20px;
   }
 
   em{
@@ -19,32 +21,34 @@
   	font-size: 150%;
   }
 
-  .btn-primary{
-  	margin-left: 30px;
+  #wine-button{
+  	margin-left: 500px;
   }
 
   #red-flavors{
-  	margin-left: 20px;
+  	margin-left: 80px;
   }
 
   #white-flavors{
   	position: absolute;
-  	margin-left: 360px;
+  	margin-left: 450px;
   }
 
   #flavors-pairings{
   	position: absolute;
-  	margin-left: 700px;
+  	margin-left: 800px;
   }
+
+
   </style>
 
   <body>
 
-  		<div id="title" class="wrapper">
-	    <h2>Find a Delicious Wine from Your Flavor Selection</h2>
-	    <p class="space"></p>
-	    <div id="characteristics"></div>
+  		<div id="title" class="wrapper" style="color: #006699;text-shadow: 1px 0 black, 0 1px black, 1px 0 black, 0 1px black;">
+	    <h2>Fl@vor F@ve</h2>
 	    </div>
+
+	    <hr>
 
 	    <div class="side-by-side clearfix">
 		    <div class="flavors" id="red-flavors">
@@ -56,12 +60,19 @@
 	              <option>Raspberry</option>
 	              <option>Blackberry</option>
 	              <option>Cherry</option>
+	              <option>Blueberry</option>
 	            </optgroup>
-	            <optgroup label="SAVORY">
+	            <optgroup label="SWEET/SALTY">
 	              <option>Caramel</option>
 	              <option>Toffee</option>
+	              <option>Raisin</option>
+	              <option>Licorice</option>
+	              <option>Mocha</option>
+	             <optgroup label="OTHER">
 	              <option>Leather</option>
 	              <option>Cedar</option>
+	              <option>Coffee</option>
+	              <option>Spice</option>
 	            </optgroup>
 	          </select>
 	        </div>
@@ -72,14 +83,24 @@
 	            <optgroup label="FRUIT">
 	              <option>Strawberry</option>
 	              <option>Lemon</option>
+	              <option>Lime</option>
 	              <option>Peach</option>
 	              <option>Grapefruit</option>
-	            </optgroup>
-	            <optgroup label="SAVORY">
-	              <option>Vanilla</option>
-	              <option>Citrus</option>
+	              <option>Orange</option>
+	              <option>Apple</option>
+	              <option>Melon</option>
 	              <option>Pineapple</option>
-	              <option>Flavor</option>
+	              <option>Watermelon</option>
+	            </optgroup>
+	            <optgroup label="SWEET/TART">
+	              <option>Vanilla</option>
+	              <option>Apricot</option>
+	              <option>Citrus</option>
+	  			  <option>Tropical</option>
+	  			  <option>Stone</option>
+	  			  <option>Creamy</option>
+	  			  <option>Butter</option>
+	  			  <option>Spice</option>
 	            </optgroup>
 	          </select>
 	        </div>
@@ -93,35 +114,38 @@
 	             <option>Citrus, Lemon, Peach, Melon, Tropical</option>
 	             <option>Orange, Caramel, Apricot, Vanilla</option>
 	             <option>Vanilla, Oak, Pineapple, Butter</option>
+	             <option>Cassis, Cedar, Tobacco, Leather, Coffee</option>
+	             <option>Tawny, Caramel, Raisin, Nutty, Maple, Toffee</option>
+	             <option>Caramel, Orange, Nutty, Apricot, Spice</option>
+	             <option>Strawberry, Salmon, Cherry, Watermelon</option>
 	          </select>
+	        </div>
+	        <div style="padding-top:20px;">
 	          <button type="button" id="wine-button" class="btn btn-primary btn-sm">Find Wines</button>
+	      	</div>
+	      	<div style="padding-top:20px;">
+	          <button type="button" id="reset-button" class="btn btn-primary btn-sm">Clear</button>
 	        </div>
         </div>
 
-		<div id="wine_area">
-			<h2>Wine Results</h2>
-			<h4 id="name1"></h4>
-			<h4 id="varietal1"></h4>
-			<h4 id="points1"></h4>
-			<p id="review1"></p>
-			<h4 id="name2"></h4>
-			<h4 id="varietal2"></h4>
-			<h4 id="points2"></h4>
-			<p id="review2"></p>
-			<h4 id="name3"></h4>
-			<h4 id="varietal3"></h4>
-			<h4 id="points3"></h4>
-			<p id="review3"></p>
-			<h4 id="name4"></h4>
-			<h4 id="varietal4"></h4>
-			<h4 id="points4"></h4>
-			<p id="review4"></p>
-			<h4 id="name5"></h4>
-			<h4 id="varietal5"></h4>
-			<h4 id="points5"></h4>
-			<p id="review5"></p>
-		</div>
+        <hr>
 
+		<div style="margin-left:550px; padding-bottom:30px; text-decoration: underline;" id="wine_area">
+			<h3>Wine Results</h3>
+		</div>
+		<div class="side-by-side clearfix">
+ 			<div style="padding-left:50px;" id="wine0">
+ 				<span id="name0"></span>
+ 			</div>
+ 			<div style="padding-left:70px;" id="wine1">
+			</div>
+			<div style="padding-left:50px;" id="wine2">
+			</div>		
+			<div style="padding-left:70px;" id="wine3">
+			</div>
+			<div style="padding-left:50px;" id="wine4">
+			</div>
+		</div>
 
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type="text/javascript"></script>
 	<script scr="http://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -144,13 +168,17 @@
 	    }	
 
 	    $('#wine-button').on('click', function () {
-	    	get_probability();
+	    	get_wines();
+	    	$(".btn-group button").removeClass("active");
+	    });
+
+	    $('#reset-button').on('click', function () {
+	    	$(".chosen-select").val('').trigger("chosen:updated");
 	    });
 
              
-		function get_probability(){
+		function get_wines(){
 
-			//foo = $('#red-flavors').find(".chosen-choices").text();
 			if ($('.flavors').find(".chosen-choices").text().length == 0){
 				wine_features = $('#flavors-pairings').find(".chosen-single").text();
 			}
@@ -158,12 +186,8 @@
 				wine_features = $('.flavors').find(".chosen-choices").text();
 			};
 
-			//Get an array of all selected radio inputs
-			//wine_features = $.map($("input:radio:checked"), function(elem){return $(elem).val();});
 			console.log(wine_features)
 
-			//feature_array = wine_features.join(', ');
-			//console.log([feature_array]);
 			descriptors = JSON.stringify({descriptions: wine_features});
 			console.log(descriptors);
 
@@ -175,12 +199,23 @@
      		async: true,
      		data: descriptors,
      		success: function (data) {
-     			for (var i = 0; i < 5; i++) {
-	     			$("#name" + (i+1)).html("Wine Name: " + '   ' + data['wine'][i]['wine/name']);
-					$("#varietal" + (i+1)).html("Wine Variant: " + '   ' + data['wine'][i]['wine/variant']);
-	     			$("#points" + (i+1)).html("Average Review Points: " + '   ' + data['wine'][i]['review/points']);
-	     			$("#review" + (i+1)).html(data['wine'][i]['review/text']);
-     			}
+
+     			var wine0 = document.getElementById("wine0");
+     			var wine1 = document.getElementById("wine1");
+     			var wine2 = document.getElementById("wine2");
+     			var wine3 = document.getElementById("wine3");
+     			var wine4 = document.getElementById("wine4");
+
+     			var wines = [wine0, wine1, wine2, wine3, wine4];
+
+     			/*for (var i = 0; i < 5; i++){
+     				wines[i].innerHTML = '';
+     				wines[i].innerHTML += 'Name: ' + data['wine'][i]['wine/name'] + "<br>" + 
+     				'Wine Variant: ' + data['wine'][i]['wine/variant'] + "<br>" + 
+     				'Avg Review Points: ' + data['wine'][i]['review/points'] + "<br>" 
+     			};*/
+
+     			$("#name0").html('Name: ' + data['wine'][0]['wine/name']);
      			
 				console.log(data)
 
