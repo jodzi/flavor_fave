@@ -4,15 +4,24 @@
   	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   	<link rel="stylesheet" href="static/chosen.min.css"/>
   	<link rel="stylesheet" href="static/style.css"/>
+  	<link rel="stylesheet" href="static/prism.css"/>
 
   </head>
 
   <style>
 
+  body {
+  	background-image: url("/static/wine_background.jpg");
+  }
+
   h2{
-  	margin-left: 450px;
-  	font-size: 300%;
-  	margin-top: 20px;
+  	background-color: rgba(255,255,255,0.7);
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 30px;
+	font-size: 80px;
+	color:#800000;
+	font-family: -webkit-body;
   }
 
   em{
@@ -21,17 +30,39 @@
   	font-size: 150%;
   }
 
-  #wine-button{
-  	margin-left: 500px;
+  .btn-primary{
+  	background-color: #990000;
+  	margin-bottom: 30px;
   }
 
-  #red-flavors{
-  	margin-left: 80px;
+  .btn-group{
+	  margin: 0 auto;
+	  width: 260px;
+	  display: block;
   }
 
-  #white-flavors{
-  	position: absolute;
-  	margin-left: 450px;
+  #full-results-left {
+	  background-color: rgba(255,255,255,0.7);
+	  width: 460px;
+	  padding: 20px 0 0 0;
+	  border-radius: 5px;
+	  position: absolute;
+	  display:none;
+	  top: 120px;
+	  left: 10px;
+	  font-family: -webkit-body;
+  }
+
+  #full-results-right {
+	  background-color: rgba(255,255,255,0.7);
+	  width: 460px;
+	  padding: 20px 0 0 0;
+	  border-radius: 5px;
+	  position: absolute;
+	  display:none;
+	  top: 120px;
+	  right: 10px;
+	  font-family: -webkit-body;
   }
 
   #flavors-pairings{
@@ -39,20 +70,73 @@
   	margin-left: 800px;
   }
 
+  .flavors {
+	  margin: 0 auto;
+	  width: 300px;
+	  display: none;
+	  /*display: block;*/
+	  clear: both;
+	  background-color: rgba(255,255,255,0.7);
+  	  color:#800000
+  }
+
+  .reviews {
+	  background-color:#EEE;
+	  border:1px solid #999999;
+	  cursor:default;
+	  display:none;
+	  margin-top: 15px;
+	  position:absolute;
+	  overflow-y: scroll;
+	  text-align:left;
+	  width:394px;
+	  height:200px;
+	  z-index:50;
+	  padding: 25px 25px 20px;
+  }
+
+  .reviews.div {
+	  border-bottom: 1px solid #EFEFEF;
+	  margin: 8px 0;
+	  padding-bottom: 8px;
+  }
+    
+  #find-buttons {
+	  width: 200px;
+	  display: block;
+	  margin: 10px auto;
+	  clear: both;
+	  display: none;
+	}
+	#find-buttons > div {
+	  width: 100px;
+	  float: left;
+	}
+
+	#find-buttons > div > button {
+		width: 80px;
+	}
 
   </style>
 
   <body>
-
-  		<div id="title" class="wrapper" style="color: #006699;text-shadow: 1px 0 black, 0 1px black, 1px 0 black, 0 1px black;">
-	    <h2>Fl@vor F@ve</h2>
+  	<div class="top">
+  		<div id="title" class="wrapper">
+	    <h2>Flavor Fave</h2>
 	    </div>
 
-	    <hr>
 
+	    <div class="btn-group" data-toggle="buttons">
+  			<label class="btn btn-primary btn-lg">
+    		<input type="radio" name="options" id="redwine" value='red' data-size="large"> Red Wines
+  			</label>
+  			<label class="btn btn-primary btn-lg">
+    		<input type="radio" name="options" id="whitewine" value='white'> White Wines
+  			</label>
+		</div>
 	    <div class="side-by-side clearfix">
 		    <div class="flavors" id="red-flavors">
-	          <em style="color:#FF0000;text-shadow: 1px 0 black, 0 1px black, 1px 0 black, 0 1px black;">Red Wine Flavors</em>
+	          <em >Red Wine Flavors</em>
 	          <select data-placeholder="Flavors" style="width:300px;" class="chosen-select" multiple tabindex="6">
 	            <option value=""></option>
 	            <optgroup label="FRUIT">
@@ -77,11 +161,10 @@
 	          </select>
 	        </div>
 	        <div class="flavors" id="white-flavors">
-	          <em style="color:Khaki;text-shadow: 1px 0 black, 0 1px black, 1px 0 black, 0 1px black;">White Wine Flavors</em>
+	          <em >White Wine Flavors</em>
 	          <select data-placeholder="Flavors" style="width:300px;" class="chosen-select" multiple tabindex="6">
 	            <option value=""></option>
 	            <optgroup label="FRUIT">
-	              <option>Strawberry</option>
 	              <option>Lemon</option>
 	              <option>Lime</option>
 	              <option>Peach</option>
@@ -104,48 +187,121 @@
 	            </optgroup>
 	          </select>
 	        </div>
-	        <div id="flavors-pairings">
-	          <em style="color:CornflowerBlue;text-shadow: 1px 0 black, 0 1px black, 1px 0 black, 0 1px black;">Common Pairings</em>
-	          <select data-placeholder="Choose a Pairing..." style="width:300px;" class="chosen-select" tabindex="2">
-	            <option value=""></option>
-	             <option>Raspberry, Strawberry, Tart, Cranberry</option>
-	             <option>Blueberry, Licorice, Raspberry, Smoke</option>
-	             <option>Blackberry, Tobacco, Coffee</option>
-	             <option>Citrus, Lemon, Peach, Melon, Tropical</option>
-	             <option>Orange, Caramel, Apricot, Vanilla</option>
-	             <option>Vanilla, Oak, Pineapple, Butter</option>
-	             <option>Cassis, Cedar, Tobacco, Leather, Coffee</option>
-	             <option>Tawny, Caramel, Raisin, Nutty, Maple, Toffee</option>
-	             <option>Caramel, Orange, Nutty, Apricot, Spice</option>
-	             <option>Strawberry, Salmon, Cherry, Watermelon</option>
-	          </select>
-	        </div>
-	        <div style="padding-top:20px;">
-	          <button type="button" id="wine-button" class="btn btn-primary btn-sm">Find Wines</button>
-	      	</div>
-	      	<div style="padding-top:20px;">
-	          <button type="button" id="reset-button" class="btn btn-primary btn-sm">Clear</button>
-	        </div>
+		    <div id="find-buttons">
+		        <div style="padding-top:15px; padding-bottom:5px;">
+		          <button type="button" id="wine-button" class="btn btn-primary btn-sm">Find Wines</button>
+		      	</div>
+		      	<div style="padding-top:15px; padding-bottom:5px;">
+		          <button type="button" id="reset-button" class="btn btn-primary btn-sm">Clear</button>
+		        </div>
+		    </div>
         </div>
-
-        <hr>
-
-		<div style="margin-left:550px; padding-bottom:30px; text-decoration: underline;" id="wine_area">
-			<h3>Wine Results</h3>
+    </div>
+    <div id="full-results-left">
+		<div style="font-size:18px;" class="side-by-side clearfix"> 
+			<div>			
+				<div style="padding-left:50px;" id="wine0">
+	 				<span id="name0"></span>
+	 				<span id="variety0"></span>
+	 				<span id="points0"></span>
+	 				<div class="reviews pop" id="reviews0">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="review0"></span>
+	 				<span id="price0"></span><br><br>
+	 			</div>
+	 			<div style="padding-left:50px;" id="wine1">
+	 				<span id="name1"></span>
+	 				<span id="variety1"></span>
+	 				<span id="points1"></span>
+	 				<div class="reviews pop" id="reviews1">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="review1"></span>
+	 				<span id="price1"></span><br><br>
+				</div>
+				<div style="padding-left:50px;" id="wine2">
+					<span id="name2"></span>
+	 				<span id="variety2"></span>
+	 				<span id="points2"></span>
+	 				<div class="reviews pop" id="reviews2">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="review2"></span>
+	 				<span id="price2"></span><br><br>
+				</div>		
+				<div style="padding-left:50px;" id="wine3">
+					<span id="name3"></span>
+	 				<span id="variety3"></span>
+	 				<span id="points3"></span>
+	 				<div class="reviews pop" id="reviews3">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="review3"></span>
+	 				<span id="price3"></span><br><br>
+				</div>
+				<div style="padding-left:50px;" id="wine4">
+					<span id="name4"></span>
+	 				<span id="variety4"></span>
+	 				<span id="points4"></span>
+	 				<div class="reviews pop" id="reviews4">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="review4"></span>
+	 				<span id="price4"></span><br><br>
+				</div>
+			</div>
 		</div>
-		<div class="side-by-side clearfix">
- 			<div style="padding-left:50px;" id="wine0">
- 				<span id="name0"></span>
- 			</div>
- 			<div style="padding-left:70px;" id="wine1">
-			</div>
-			<div style="padding-left:50px;" id="wine2">
-			</div>		
-			<div style="padding-left:70px;" id="wine3">
-			</div>
-			<div style="padding-left:50px;" id="wine4">
+	</div>
+
+	<div id="full-results-right">
+		<div style="font-size:18px;" class="side-by-side clearfix"> 
+			<div>			
+				<div style="padding-left:50px;" id="pwine0">
+	 				<span id="pname0"></span>
+	 				<span id="pvariety0"></span>
+	 				<span id="ppoints0"></span>
+	 				<div class="reviews pop" id="reviews0">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="preview0"></span>
+	 				<span id="pprice0"></span><br><br>
+	 			</div>
+	 			<div style="padding-left:50px;" id="pwine1">
+	 				<span id="pname1"></span>
+	 				<span id="pvariety1"></span>
+	 				<span id="ppoints1"></span>
+	 				<div class="reviews pop" id="reviews1">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="preview1"></span>
+	 				<span id="pprice1"></span><br><br>
+				</div>
+				<div style="padding-left:50px;" id="pwine2">
+					<span id="pname2"></span>
+	 				<span id="pvariety2"></span>
+	 				<span id="ppoints2"></span>
+	 				<div class="reviews pop" id="reviews2">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="preview2"></span>
+	 				<span id="pprice2"></span><br><br>
+				</div>		
+				<div style="padding-left:50px;" id="pwine3">
+					<span id="pname3"></span>
+	 				<span id="pvariety3"></span>
+	 				<span id="ppoints3"></span>
+	 				<div class="reviews pop" id="reviews3">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="preview3"></span>
+	 				<span id="pprice3"></span><br><br>
+				</div>
+				<div style="padding-left:50px;" id="pwine4">
+					<span id="pname4"></span>
+	 				<span id="pvariety4"></span>
+	 				<span id="ppoints4"></span>
+	 				<div class="reviews pop" id="reviews4">
+	 				</div>
+	 				<span class="review_button" style="text-decoration: underline;" id="preview4"></span>
+	 				<span id="pprice4"></span><br><br>
+				</div>
 			</div>
 		</div>
+	</div>
+
+
 
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type="text/javascript"></script>
 	<script scr="http://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -167,17 +323,37 @@
       		$(selector).chosen(config[selector]);
 	    }	
 
+	    $('.btn').button();
+
 	    $('#wine-button').on('click', function () {
 	    	get_wines();
 	    	$(".btn-group button").removeClass("active");
 	    });
 
+
 	    $('#reset-button').on('click', function () {
 	    	$(".chosen-select").val('').trigger("chosen:updated");
+	    	$('#full-results-left').hide();
+	    	$('#full-results-right').hide();
 	    });
+
+
+	    $('input:radio[name="options"]').change(function(){
+	    	if($(this).val() === 'red'){
+	    		$('#red-flavors').css('display', 'block');
+	    		$('#find-buttons').css('display', 'block')
+	    		$('#white-flavors').css('display', 'none');
+	    }
+	    	else{
+	    		$('#red-flavors').css('display', 'none');
+	    		$('#find-buttons').css('display', 'block')
+	    		$('#white-flavors').css('display', 'block');
+	    	}
+	    })
 
              
 		function get_wines(){
+
 
 			if ($('.flavors').find(".chosen-choices").text().length == 0){
 				wine_features = $('#flavors-pairings').find(".chosen-single").text();
@@ -186,10 +362,33 @@
 				wine_features = $('.flavors').find(".chosen-choices").text();
 			};
 
+			pair1 = ['Raspberry', 'Strawberry', 'Tart', 'Cranberry', 'Cola'];
+			pair2 = ['Blueberry', 'Licorice', 'Jammy', 'Smoke'];
+			pair3 = ['Blackberry', 'Tobacco', 'Coffee'];
+			pair4 = ['Citrus', 'Lemon', 'Peach', 'Melon', 'Tropical'];
+			pair5 = ['Orange', 'Caramel', 'Apricot'];
+			pair6 = ['Vanilla', 'Oak', 'Pineapple', 'Butter'];
+			
+			pair_array = [pair1, pair2, pair3, pair4, pair5, pair6];
+
+			pairings = {pair1: 'Rasbperry Strawberry Tart Cranberry Cola', pair2: 'Cassis, Cedar, Tobacco, Leather, Coffee',
+						pair3: 'Blackberry, Tobacco, Coffee', pair4: 'Citrus, Lemon, Peach, Melon, Tropical', 
+						pair5: 'Orange, Caramel, Apricot', pair6: 'Vanilla, Oak, Pineapple, Butter'};
+
+			if ($.inArray(wine_features, pair1)){;
+				flavor_pair = pairings.pair1;
+			};
+			if ($.inArray(wine_features, pair2)){
+				flavor_pair = pairings.pair2;
+			};
+			if ($.inArray(wine_features, pair3)){
+				flavor_pair = pairings.pair3;
+			};
+
 			console.log(wine_features)
 
-			descriptors = JSON.stringify({descriptions: wine_features});
-			console.log(descriptors);
+			descriptors = JSON.stringify({descriptions: wine_features, pair_desc: flavor_pair});
+			//console.log(descriptors);
 
             $.ajax({
      		type: "POST",
@@ -200,30 +399,63 @@
      		data: descriptors,
      		success: function (data) {
 
-     			var wine0 = document.getElementById("wine0");
-     			var wine1 = document.getElementById("wine1");
-     			var wine2 = document.getElementById("wine2");
-     			var wine3 = document.getElementById("wine3");
-     			var wine4 = document.getElementById("wine4");
+     			$('#full-results-left').show();
+     			$('#full-results-right').show();
 
-     			var wines = [wine0, wine1, wine2, wine3, wine4];
+     			for (var i = 0; i < 5; i++){
+	     			$("#name" + i).html(data['wine'][i]['wine/name'] + "<br>");
+	     			$("#variety" + i).html(data['wine'][i]['wine/variant'] + "<br>");
+	     			$("#points" + i).html(data['wine'][i]['review/points'] + "<br>");
+	     			$("#review" + i).html('Review' + "<br>");
+	     			$("#price" + i).html(data['wine'][i]['food_pairing'] + "<br>");
+	     			//$("#price" + i).html('Price: ' + data['wine'][i]['price'] + "<br>");
 
-     			/*for (var i = 0; i < 5; i++){
-     				wines[i].innerHTML = '';
-     				wines[i].innerHTML += 'Name: ' + data['wine'][i]['wine/name'] + "<br>" + 
-     				'Wine Variant: ' + data['wine'][i]['wine/variant'] + "<br>" + 
-     				'Avg Review Points: ' + data['wine'][i]['review/points'] + "<br>" 
-     			};*/
+	     			$("#pname" + i).html(data['pairing'][i]['wine/name'] + "<br>");
+	     			$("#pvariety" + i).html(data['pairing'][i]['wine/variant'] + "<br>");
+	     			$("#ppoints" + i).html(data['pairing'][i]['review/points'] + "<br>");
+	     			$("#preview" + i).html('Review' + "<br>");
+	     			$("#pprice" + i).html(data['pairing'][i]['food_pairing'] + "<br>");
+	     		}; 
 
-     			$("#name0").html('Name: ' + data['wine'][0]['wine/name']);
-     			
-				console.log(data)
+     			function deselect(e) {
+     			  var review_id = e.prev().attr('id');
+				  $('#' + review_id).slideFadeToggle(function() {
+				    e.removeClass('selected');
+				  });    
+				}
+
+				
+				$(function() {
+				  $('.review_button').on('click', function() {
+				    if($(this).hasClass('selected')) {
+				      deselect($(this));               
+				    } else {
+				      var review_id = $(this).prev().attr('id');
+				      var lastChar = review_id.substr(review_id.length - 1);
+				      $(this).addClass('selected');
+				      $('#' + review_id).slideFadeToggle();
+				      $('#' + review_id).html(data['wine'][lastChar]['review/text']);
+				    }
+				    return false;
+				  });
+
+				  $('.close').on('click', function(){
+				  	var review_id = $(this).prev().attr('id');
+				    deselect($(this));
+				    return false;
+				  });
+				});
+
+				$.fn.slideFadeToggle = function(easing, callback) {
+				  return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
+				};
 
      		},
      		error: function (result) {
          		console.log(result);}
        		})
-              };
+        };
+
 	</script>
    </body>
 </html>
