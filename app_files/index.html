@@ -24,6 +24,14 @@
 	font-family: -webkit-body;
   }
 
+  h3{
+  	text-align: center;
+  	padding-bottom: 20px;
+  	font-size:20px;
+  	font-family: -webkit-body;
+  	text-decoration: underline;
+  }
+
   em{
   	margin-left: 50px;
   	font-family: Arial;
@@ -51,6 +59,7 @@
 	  top: 120px;
 	  left: 10px;
 	  font-family: -webkit-body;
+  		margin-bottom: 20px;
   }
 
   #full-results-right {
@@ -63,6 +72,7 @@
 	  top: 120px;
 	  right: 10px;
 	  font-family: -webkit-body;
+	  margin-bottom: 20px;
   }
 
   #flavors-pairings{
@@ -248,7 +258,6 @@
 			</div>
 		</div>
 	</div>
-
 	<div id="full-results-right">
 		<div style="font-size:18px;" class="side-by-side clearfix"> 
 			<div>			
@@ -256,7 +265,7 @@
 	 				<span id="pname0"></span>
 	 				<span id="pvariety0"></span>
 	 				<span id="ppoints0"></span>
-	 				<div class="reviews pop" id="reviews0">
+	 				<div class="reviews pop" id="previews0">
 	 				</div>
 	 				<span class="review_button" style="text-decoration: underline;" id="preview0"></span>
 	 				<span id="pprice0"></span><br><br>
@@ -265,7 +274,7 @@
 	 				<span id="pname1"></span>
 	 				<span id="pvariety1"></span>
 	 				<span id="ppoints1"></span>
-	 				<div class="reviews pop" id="reviews1">
+	 				<div class="reviews pop" id="previews1">
 	 				</div>
 	 				<span class="review_button" style="text-decoration: underline;" id="preview1"></span>
 	 				<span id="pprice1"></span><br><br>
@@ -274,7 +283,7 @@
 					<span id="pname2"></span>
 	 				<span id="pvariety2"></span>
 	 				<span id="ppoints2"></span>
-	 				<div class="reviews pop" id="reviews2">
+	 				<div class="reviews pop" id="previews2">
 	 				</div>
 	 				<span class="review_button" style="text-decoration: underline;" id="preview2"></span>
 	 				<span id="pprice2"></span><br><br>
@@ -283,7 +292,7 @@
 					<span id="pname3"></span>
 	 				<span id="pvariety3"></span>
 	 				<span id="ppoints3"></span>
-	 				<div class="reviews pop" id="reviews3">
+	 				<div class="reviews pop" id="previews3">
 	 				</div>
 	 				<span class="review_button" style="text-decoration: underline;" id="preview3"></span>
 	 				<span id="pprice3"></span><br><br>
@@ -292,7 +301,7 @@
 					<span id="pname4"></span>
 	 				<span id="pvariety4"></span>
 	 				<span id="ppoints4"></span>
-	 				<div class="reviews pop" id="reviews4">
+	 				<div class="reviews pop" id="previews4">
 	 				</div>
 	 				<span class="review_button" style="text-decoration: underline;" id="preview4"></span>
 	 				<span id="pprice4"></span><br><br>
@@ -326,6 +335,12 @@
 	    $('.btn').button();
 
 	    $('#wine-button').on('click', function () {
+	    	$("#full-results-right > div > div > div > span").html("");
+			$("#full-results-right > div > div > div > div").html("");
+			$("#full-results-right > h3").html("");
+			$("#full-results-left > div > div > div > span").html("");
+			$("#full-results-left > div > div > div > div").html("");
+			$("#full-results-left > h3").html("");
 	    	get_wines();
 	    	$(".btn-group button").removeClass("active");
 	    });
@@ -361,34 +376,36 @@
 			else {
 				wine_features = $('.flavors').find(".chosen-choices").text();
 			};
+			console.log('wine features', wine_features);
 
 			pair1 = ['Raspberry', 'Strawberry', 'Tart', 'Cranberry', 'Cola'];
-			pair2 = ['Blueberry', 'Licorice', 'Jammy', 'Smoke'];
-			pair3 = ['Blackberry', 'Tobacco', 'Coffee'];
-			pair4 = ['Citrus', 'Lemon', 'Peach', 'Melon', 'Tropical'];
-			pair5 = ['Orange', 'Caramel', 'Apricot'];
-			pair6 = ['Vanilla', 'Oak', 'Pineapple', 'Butter'];
+			pair2 = ['Cassis', 'Cedar', 'Tobacco', 'Leather', 'Coffee'];
+			pair3 = ['Citrus', 'Lemon', 'Peach', 'Melon', 'Tropical'];
+			pair4 = ['Orange', 'Caramel', 'Apricot'];
+			pair5 = ['Vanilla', 'Oak', 'Pineapple', 'Butter'];
 			
-			pair_array = [pair1, pair2, pair3, pair4, pair5, pair6];
+			pair_array = [pair1, pair2, pair3, pair4, pair5];
 
 			pairings = {pair1: 'Rasbperry Strawberry Tart Cranberry Cola', pair2: 'Cassis, Cedar, Tobacco, Leather, Coffee',
-						pair3: 'Blackberry, Tobacco, Coffee', pair4: 'Citrus, Lemon, Peach, Melon, Tropical', 
-						pair5: 'Orange, Caramel, Apricot', pair6: 'Vanilla, Oak, Pineapple, Butter'};
+						pair3: 'Citrus, Lemon, Peach, Melon, Tropical', pair4: 'Orange, Caramel, Apricot', 
+						pair5: 'Vanilla, Oak, Pineapple, Butter'};
 
-			if ($.inArray(wine_features, pair1)){;
-				flavor_pair = pairings.pair1;
-			};
-			if ($.inArray(wine_features, pair2)){
-				flavor_pair = pairings.pair2;
-			};
-			if ($.inArray(wine_features, pair3)){
-				flavor_pair = pairings.pair3;
-			};
+			// if ($.inArray(wine_features, pair1) != -1){;
+			// 	flavor_pair = pairings.pair1;
+			// } else if ($.inArray(wine_features, pair2) != -1){
+			// 	flavor_pair = pairings.pair2;
+			// } else if ($.inArray(wine_features, pair3) != -1){
+			// 	flavor_pair = pairings.pair3;
+			// } else if ($.inArray(wine_features, pair4) != -1){
+			// 	flavor_pair = pairings.pair4;
+			// } else if ($.inArray(wine_features, pair5) != -1){
+			// 	flavor_pair = pairings.pair5;
+			// } else {
+			// 	flavor_pair = ""
+			// };
 
-			console.log(wine_features)
 
-			descriptors = JSON.stringify({descriptions: wine_features, pair_desc: flavor_pair});
-			//console.log(descriptors);
+			descriptors = JSON.stringify({descriptions: wine_features, pair_desc: pair3});
 
             $.ajax({
      		type: "POST",
@@ -399,23 +416,26 @@
      		data: descriptors,
      		success: function (data) {
 
+     			console.log(data['pairing']);
+
      			$('#full-results-left').show();
      			$('#full-results-right').show();
-
      			for (var i = 0; i < 5; i++){
-	     			$("#name" + i).html(data['wine'][i]['wine/name'] + "<br>");
+	     			$("#name" + i).html("<b>" + data['wine'][i]['wine/name'] + "</b><br>");
 	     			$("#variety" + i).html(data['wine'][i]['wine/variant'] + "<br>");
 	     			$("#points" + i).html(data['wine'][i]['review/points'] + "<br>");
 	     			$("#review" + i).html('Review' + "<br>");
 	     			$("#price" + i).html(data['wine'][i]['food_pairing'] + "<br>");
-	     			//$("#price" + i).html('Price: ' + data['wine'][i]['price'] + "<br>");
 
-	     			$("#pname" + i).html(data['pairing'][i]['wine/name'] + "<br>");
+	     			$("#pname" + i).html("<b>" + data['pairing'][i]['wine/name'] + "</b><br>");
 	     			$("#pvariety" + i).html(data['pairing'][i]['wine/variant'] + "<br>");
 	     			$("#ppoints" + i).html(data['pairing'][i]['review/points'] + "<br>");
 	     			$("#preview" + i).html('Review' + "<br>");
 	     			$("#pprice" + i).html(data['pairing'][i]['food_pairing'] + "<br>");
 	     		}; 
+
+     			$('#full-results-left').prepend("<h3>" + wine_features + "</h3>");
+     			$('#full-results-right').prepend("<h3>" + pair3 + "</h3>");
 
      			function deselect(e) {
      			  var review_id = e.prev().attr('id');
@@ -431,11 +451,16 @@
 				      deselect($(this));               
 				    } else {
 				      var review_id = $(this).prev().attr('id');
+				      console.log(review_id);
 				      var lastChar = review_id.substr(review_id.length - 1);
 				      $(this).addClass('selected');
 				      $('#' + review_id).slideFadeToggle();
-				      $('#' + review_id).html(data['wine'][lastChar]['review/text']);
-				    }
+				      if (review_id.startsWith('p')){
+				      	$('#' + review_id).html(data['pairing'][lastChar]['review/text']);
+				      } else{
+				      	$('#' + review_id).html(data['wine'][lastChar]['review/text']);
+				      }
+				    };
 				    return false;
 				  });
 
